@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { User, Mail, Lock, Loader2, ArrowRight } from 'lucide-react';
-import axios from 'axios';
+import api from '@/lib/api';
 
 export default function SignupPage() {
   const [formData, setFormData] = useState({ name: '', email: '', password: '' });
@@ -18,7 +18,7 @@ export default function SignupPage() {
     setIsLoading(true);
 
     try {
-      const response = await axios.post('http://localhost:5000/api/auth/signup', formData);
+      const response = await api.post('/auth/signup', formData);
       localStorage.setItem('accessToken', response.data.accessToken);
       localStorage.setItem('refreshToken', response.data.refreshToken);
       router.push('/dashboard');
