@@ -42,6 +42,10 @@ export default function Dashboard() {
       setCampaigns(response.data);
     } catch (err: any) {
       console.error('Failed to fetch campaigns:', err);
+      // If the request fails, it's likely a session issue
+      if (err.response?.status === 401 || err.response?.status === 403) {
+        window.location.href = '/signin';
+      }
     } finally {
       setIsLoading(false);
     }

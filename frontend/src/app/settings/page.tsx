@@ -30,6 +30,8 @@ export default function SettingsPage() {
       setIsLocked(!!response.data.instaCookies);
     } catch (err: any) {
       console.error('Failed to fetch user data:', err);
+      // Redirect to signin if unauthorized
+      window.location.href = '/signin';
     }
   };
 
