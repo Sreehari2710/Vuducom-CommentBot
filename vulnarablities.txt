@@ -1,0 +1,29 @@
+"Vibe coding"—building quickly with AI and prioritizing aesthetics and immediate functionality—often leads to specific security trade-offs. Here are the primary vulnerabilities in an application like this:
+
+1. Plain-Text Sensitive Data (Critical)
+The most significant risk in this app is the Instagram Session Cookies.
+
+The Vulnerability: Currently, cookies are stored as plain text in the database.
+The Risk: If your database is ever leaked or accessed by an unauthorized person, every single user's Instagram account is instantly compromised.
+Vibe-Code Fix: Use crypto or bcrypt to encrypt the cookies before saving them to the DB and decrypt them only when sending to Apify.
+2. Lack of API Rate Limiting
+The Vulnerability: There are no restrictions on how many times an IP address can call your /api/auth/signup or /api/campaigns endpoints.
+The Risk: A malicious user could write a script to create millions of fake accounts or trigger thousands of expensive Apify runs, exhausting your Apify credits and crashing your database.
+3. Weak Session Management
+The Vulnerability: The JWT (JSON Web Token) used for login has a long expiration (7 days) and cannot be revoked.
+The Risk: If a user's token is stolen, the attacker has full access for 7 days. There is no "Logout from all devices" feature because the backend doesn't track active sessions; it just trusts the token.
+4. Background Process Fragility
+The Vulnerability: Automation runs in a simple async loop in the Node.js memory.
+The Risk: If your server restarts (e.g., during a deployment or a crash), all currently running campaigns are lost forever and will never resume.
+Engineering Fix: A real-world app would use a persistent task queue like BullMQ or Redis.
+5. Input Sanitization & XSS
+The Vulnerability: Instagram comments are accepted and stored exactly as typed by the user.
+The Risk: While less critical for a personal tool, if you display these comments to other users or admins without proper escaping, it could lead to Stored XSS (Cross-Site Scripting).
+6. Insecure CORS Configuration
+The Vulnerability: The backend currently uses app.use(cors()), which allows any website to make requests to your API.
+The Risk: This opens the door to CSRF (Cross-Site Request Forgery) attacks where a malicious site could try to trigger actions in your bot while you are logged in.
+7. Dependency Bloat & Vulnerabilities
+The Vulnerability: AI-driven development often pulls in many libraries without checking their security patches.
+The Risk: Your node_modules might contain packages with known vulnerabilities (like the "moderate severity" ones flagged during our npm install).
+Summary for your specific app:
+The Instagram cookies are your "Keys to the Kingdom." In a production-ready version, you should never store them without AES-256 encryption. Additionally, as you scale, moving from a simple loop to a Worker/Queue system is essential for reliability.
